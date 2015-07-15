@@ -1,0 +1,200 @@
+// USANDO - JAVASCRIPT PURO ---------
+function unique(input){
+  return input.filter(function(elemento, index, array) {
+      return index == array.indexOf(elemento);
+  });
+}
+
+function number(e){
+  var tecla = (window.event) ? event.keyCode : e.which;   
+  if((tecla > 47) && (tecla < 58)){
+    return true;
+  }else{
+    if ((tecla == 8) || (tecla == 0)){
+      return true;
+    }else{
+      return false;
+    }
+  }
+}
+// FIM USANDO - JAVASCRIPT PURO
+
+
+
+
+
+// USANDO - ANGULAR.JS ---------
+var agenda = angular.module('agenda', []);
+
+agenda.controller('HomeCtrl', ['$scope', function($scope) {
+    $scope.dieta = [];
+    $scope.selectedWeek = [];
+    $scope.selectedDay  = [];
+    $scope.carbo_total  = 0;
+    $scope.editing      = false;
+    $scope.registry     = [];
+    $scope.firstload    = true;
+    $scope.pessoa       = [];
+
+    $scope.iniciar = function(){
+      var pessoa = $scope.pessoa;
+      if((pessoa.nome != null) && 
+        (pessoa.idade != null) && 
+        (pessoa.peso != null) && 
+        (pessoa.sexo != null)){
+        $scope.firstload = false;
+      }else{
+        alert("Preencha todos os campos do formulario!");
+        return false;
+      }
+
+      if(pessoa.sexo == "m"){
+        $scope.pessoa.tmb = (66 + 
+                            (13.7 * parseFloat(pessoa.peso)) +
+                            (5 * pessoa.altura) - 
+                            (6.8 * pessoa.idade));
+        $scope.pessoa.maxcarbo = (((60 / parseFloat(pessoa.tmb)) * 100) * parseFloat(pessoa.peso));   
+      }else{
+        $scope.pessoa.tmb = (665 + 
+                            (9.6 * parseFloat(pessoa.peso)) +
+                            (1.8 * pessoa.altura) - 
+                            (4.7 * pessoa.idade));
+        $scope.pessoa.maxcarbo = (((60 / parseFloat(pessoa.tmb)) * 100) * parseFloat(pessoa.peso));   
+      }
+    }
+
+    $scope.exit = function(){
+      $scope.dieta = [];
+      $scope.selectedWeek = [];
+      $scope.selectedDay  = [];
+      $scope.carbo_total  = 0;
+      $scope.editing      = false;
+      $scope.registry     = [];
+      $scope.firstload    = true;
+      $scope.pessoa       = [];
+    }
+
+    $scope.filterWeek = function(week){
+      var newWeek = selectedWeek.indexOf(week.semana) == -1;   
+      if (newWeek){
+        selectedWeek.push(week.semana);
+      }
+      return newWeek;
+    }
+
+    $scope.toFilterWeek = function (){
+      selectedWeek  = [];
+      return $scope.dieta;
+    }
+
+    $scope.toFilterDay = function(week){
+      selectedDay = [];
+      angular.forEach($scope.dieta,function(value){
+        if (value.semana == week){
+          selectedDay.push(value.dia);
+        }
+      })
+      selectedDay = unique(selectedDay);
+      return selectedDay;
+    }
+
+    $scope.toFilterRefeicao = function(semana,dia){
+        selectedMeal = [];
+        angular.forEach($scope.dieta,function(i){
+          if ((i.semana == semana) && (i.dia == dia)){
+            selectedMeal.push(i.refeicao);
+          }
+        })
+        selectedMeal = unique(selectedMeal);
+        return selectedMeal;
+    }
+
+    $scope.toFilterDish = function(semana,dia,refeicao){
+        selectedDish = [];
+        angular.forEach($scope.dieta,function(i){
+          if ((i.semana == semana) && (i.dia == dia) && (i.refeicao == refeicao)){
+              selectedDish.push(i);
+          }
+        })
+        selectedDish = unique(selectedDish);
+        return selectedDish;
+    }
+
+  $scope.$watchCollection('dieta',function(){
+    $scope.carbo_total = 0;
+    angular.forEach($scope.dieta, function(value){
+      $scope.carbo_total = Number($scope.carbo_total) + Number(value.carbo);
+    })
+  });
+
+  $scope.total_carbo = function(total,semana,dia){
+    var carbo = 0;
+    angular.forEach($scope.dieta, function(i){
+      if (total == 1){
+        carbo = parseInt(carbo) + parseInt(i.carbo);
+      }else if((dia == null) && (semana != null)){
+        if (i.semana == semana){
+          carbo = parseInt(carbo) + parseInt(i.carbo);
+        }
+      }else{
+        if ((i.semana == semana) && (i.dia == dia)){
+          carbo = parseInt(carbo) + parseInt(i.carbo);
+        }
+      }
+    })
+    if ((semana != null) && (dia != null)){
+      if (carbo > $scope.pessoa.maxcarbo){
+        alert("Voce excedeu o maximo de carboidratos previstos para o dia "+dia);
+      }
+    }
+    return carbo;
+  }
+
+   $scope.create = function(){
+      code = Math.floor(Math.random() * (99999 - 11111 + 1)) + 11111;
+      $scope.dieta.push({ uid       :code,
+                          semana    :$scope.dieta.newsemana,
+                          dia       :$scope.dieta.newdia,
+                          refeicao  :$scope.dieta.newrefeicao,
+                          prato     :$scope.dieta.newprato,
+                          carbo     :$scope.dieta.newcarbo});
+      console.dir($scope.dieta);
+   }
+
+   $scope.delete = function(row){
+      $scope.dieta.splice(row,1);
+   }
+
+   $scope.update = function(code){
+      $scope.registry = [];
+      $scope.editing = true;
+      angular.forEach($scope.dieta, function(i){
+        if (i.uid == code){
+          row = $scope.dieta.indexOf(i);
+        }
+      })   
+      $scope.registry = $scope.dieta[row];
+      return $scope.registry;
+   }
+
+   $scope.toSave = function(registry,mode){
+      code = registry.uid;
+      if (mode == 1){
+        $scope.editing = false;
+        return false;
+      }
+      angular.forEach($scope.dieta, function(i){
+        if (i.uid == code){
+          row = $scope.dieta.indexOf(i)
+          $scope.dieta[row].semana    = (($scope.dieta.semana   != null) ?  $scope.dieta.semana   : registry.semana);
+          $scope.dieta[row].dia       = (($scope.dieta.dia      != null) ?  $scope.dieta.dia      : registry.dia);
+          $scope.dieta[row].refeicao  = (($scope.dieta.refeicao != null) ?  $scope.dieta.refeicao : registry.refeicao);
+          $scope.dieta[row].prato     = (($scope.dieta.prato    != null) ?  $scope.dieta.prato    : registry.prato);
+          $scope.dieta[row].carbo     = (($scope.dieta.carbo    != null) ?  $scope.dieta.carbo    : registry.carbo);
+        }
+      })    
+      $scope.editing = false;
+   }
+
+}]);
+// FIM - USANDO ANGULAR.JS
