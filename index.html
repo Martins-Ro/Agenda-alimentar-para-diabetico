@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+	<title>.:: Alimentar - by Angular.js ::.</title>
+  <link rel="stylesheet" type="text/css" href="assets/css/index.css"/>
+	<script type="text/javascript" src="assets/js/angular.min.js"></script>
+	
+</head>
+<body>
+
+  <div class="div-center" ng-app="agenda">
+    <div class="by-top">
+      Alimentar.js
+    </div>
+
+    <div ng-controller="HomeCtrl">
+
+    <div ng-if="firstload==true" class="start-block">
+      <span class="text-16">Seja bem vindo(a)!</span><br/>
+      <br/>
+      Qual o seu nome?<br/>
+      <input type="text" ng-model="pessoa.nome" required="required" placeholder="Digite seu nome..."/><br/>
+      Qual a sua idade?<br/>
+      <input type="text" ng-model="pessoa.idade" required="required" placeholder="Digite sua idade..." onkeypress="return number(event)"/><br/>
+      Qual o seu peso?<br/>
+      <input type="text" ng-model="pessoa.peso" required="required" placeholder="Digite seu peso (Kg)..." onkeypress="return number(event)"/><br/>
+      Qual a sua altura?<br/>
+      <input type="text" ng-model="pessoa.altura" required="required" placeholder="Digite sua altura (cm)..." onkeypress="return number(event)"/><br/>
+      Qual o seu sexo?<br/>
+      <input type="radio" ng-model="pessoa.sexo" value="m"> Masculino
+      <input type="radio" ng-model="pessoa.sexo" value="f"> Feminino<br/>
+      <button ng-click="iniciar()" class="btn-cadastrar">Iniciar</button>
+    </div>
+
+      <div class="create-block" ng-if="firstload!=true">
+        <div class="by-name">
+          {{pessoa.nome}}, seja bem vindo(a)!
+        </div>
+        <div class="by-title">
+          CADASTRAR NOVA REFEIÇÃO
+        </div>
+
+        <label for="input-semana">Semana: </label>
+        <input type="number" ng-model="dieta.newsemana" placeholder="Semana" id="input-semana" onkeypress="return number(event)"/>
+        <br/>
+        <label for="input-dia">Escolha o dia: </label>
+        <select ng-model="dieta.newdia" id="input-dia">
+          <option value="" selected>Selecione o dia</option>
+          <option value="Segunda-Feira">Segunda-Feira</option>
+          <option value="Terça-Feira">Terça-Feira</option>
+          <option value="Quarta-Feira">Quarta-Feira</option>
+          <option value="Quinta-Feira">Quinta-Feira</option>
+          <option value="Sexta-Feira">Sexta-Feira</option>
+          <option value="Sábado">Sábado</option>
+          <option value="Domingo">Domingo</option>
+        </select>
+        <br/>
+        <label for="input-refeicao">Escolha a refeição: </label>
+        <select ng-model="dieta.newrefeicao" id="input-refeicao">
+          <option value="" selected>Selecione a refeição</option>
+          <option value="Café da manhã">Café da manhã</option>
+          <option value="Lanche da manhã">Lanche da manhã</option>
+          <option value="Almoço">Almoço</option>
+          <option value="Lanche da tarde">Lanche da tarde</option>
+          <option value="Jantar">Jantar</option>
+          <option value="Ceia">Ceia</option>
+        </select> 
+        <br/>
+        <label for="input-prato">Prato: </label>
+        <input type="text" ng-model="dieta.newprato" placeholder="Prato" id="input-prato"/>
+        <br/>
+        <label for="input-calorias">Carboidratos: </label>
+        <input type="text" ng-model="dieta.newcarbo" placeholder="Carboidratos (em gramas)" id="input-carbo" onkeypress="return number(event)"/>
+        <br/>
+        <br/>
+        <button ng-click="create()" class="btn-cadastrar">Cadastrar</button>
+        <button ng-click="exit()" class="btn-cancelar">Sair do aplicativo</button>
+      </div>
+
+
+      <div class="edit-block" ng-if="editing==true">
+        <div class="by-title">
+          EDITAR REFEIÇÃO
+        </div>
+        
+        <label for="input-semana">Semana: </label>
+        <input type="number" ng-model="dieta.semana" id="input-semana" placeholder="{{registry.semana}}" required="required" onkeypress="return number(event)"/> 
+        <br/>
+        <label for="input-dia">Escolha o dia: </label>
+        <select ng-model="dieta.dia" id="input-dia" required="required">
+          <option value="">Selecione o dia</option>
+          <option value="Segunda-Feira">Segunda-Feira</option>
+          <option value="Terça-Feira">Terça-Feira</option>
+          <option value="Quarta-Feira">Quarta-Feira</option>
+          <option value="Quinta-Feira">Quinta-Feira</option>
+          <option value="Sexta-Feira">Sexta-Feira</option>
+          <option value="Sábado">Sábado</option>
+          <option value="Domingo">Domingo</option>
+        </select>
+        <br/>
+        <label for="input-refeicao" required="required">Escolha a refeição: </label>
+        <select ng-model="dieta.refeicao" id="input-refeicao">
+          <option value="">Selecione a refeição</option>
+          <option value="Café da manhã">Café da manhã</option>
+          <option value="Café da manhã" ng-if="registry.refeicao=='Café da manhã'" selected="">Café da manhã</option>
+          <option value="Lanche da manhã">Lanche da manhã</option>
+          <option value="Lanche da manhã" ng-if="registry.refeicao=='Lanche da manhã'" selected="">Lanche da manhã</option>
+          <option value="Almoço">Almoço</option>
+          <option value="Almoço" ng-if="registry.refeicao=='Almoço'" selected="">Almoço</option>
+          <option value="Lanche da tarde">Lanche da tarde</option>
+          <option value="Lanche da tarde" ng-if="registry.refeicao=='Lanche da tarde'" selected="">Lanche da tarde</option>
+          <option value="Jantar">Jantar</option>
+          <option value="Jantar" ng-if="registry.refeicao=='Jantar'" selected="">Jantar</option>
+          <option value="Ceia">Ceia</option>
+          <option value="Ceia" ng-if="registry.refeicao=='Ceia'" selected="">Ceia</option>
+        </select> 
+        <br/>
+        <label for="input-prato">Prato: </label>
+        <input type="text" ng-model="dieta.prato" placeholder="{{registry.prato}}" id="input-prato" required="required"/>
+        <br/>
+        <label for="input-carbo" required>Carboidratos: </label>
+        <input type="text" ng-model="dieta.carbo" placeholder="{{registry.carbo}}" id="input-carbo"  required="required" onkeypress="return number(event)"/>
+        <br/>
+        <br/>
+        <button ng-click="toSave(registry)" class="btn-cadastrar">Gravar alterações</button>
+        <button ng-click="toSave(registry,1)" class="btn-cancelar">Cancelar</button>
+      </div>
+
+
+      <div class="by-title" ng-if="firstload!=true&&dieta.length>0">
+        LISTA DE REFEIÇÕES
+      </div>
+
+      <div class="week-block" ng-repeat="week in toFilterWeek() | filter: filterWeek">
+        <div class="week-selector">
+            {{week.semana}}
+            <br/>
+            <p style="font-size:16px;">Semana</p>
+            <p style="font-size:13px">
+              Carboidratos: {{total_carbo(0,week.semana,null)}}g
+            </p>
+        </div>
+
+        <div class="day-block">
+          <div  ng-repeat="day in toFilterDay(week.semana)">
+            <div class="day-selector">
+                <span class="text-white">Dia da semana</span> | {{ day }} | 
+                <span class="text-no-bold by-total">Carboidratos: {{total_carbo(0,week.semana,day)}}</span>
+            </div>
+            <div ng-repeat="meal in toFilterRefeicao(week.semana,day)" style="clear:both">
+              <div class="dish-selector">
+                {{meal}}
+              </div>
+              <li ng-repeat="dish in toFilterDish(week.semana,day,meal)" class="meal-list">
+                {{dish.prato}} | Carboidratos: {{dish.carbo}}g 
+                <button ng-click="update(dish.uid);" class="btn-edit">Editar</button> 
+                <button ng-click="delete($index);" class="btn-remove">Apagar</button>
+              </li>
+            </div>
+            <div class="day-selector">
+                <span class="text-white">Total de carboidratos para o dia: </span> {{ day }} - {{total_carbo(0,week.semana,day)}}g
+            </div>
+          </div>     
+      </div>    
+    </div>
+
+  </div>
+    <script type="text/javascript" src="assets/js/app.js"></script>
+  </body>
+</html>
